@@ -2489,7 +2489,7 @@ tr.co-detail-row td { padding: 0; }
           </select>
         </div>
         <div class="form-group"><label class="form-label">Message</label><textarea class="form-textarea" placeholder="Tell us about your requirements, team size, and data needs...">We are interested in enterprise-level access to the full ITICS dataset covering 15,000+ companies globally, including historical data from 2017 and API delivery. Please share pricing details and SLA options for our team.</textarea></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">Submit Enquiry →</button>
+        <button type="button" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="submitContactForm(event)">Submit Enquiry →</button>
       </form>
     </div>
   </div>
@@ -3474,6 +3474,244 @@ function closeLensModal(e) {
   document.body.style.overflow = '';
 }
 
+// ═══════════════════════════════════════════════════
+// THEME COMPANY DETAIL SUB-PAGE
+// ═══════════════════════════════════════════════════
+function openThemeCompanyDetail(name, l1, ticker, country, revenue, themeRevPct, pe, divYield) {
+  const root = document.getElementById('themedetail-root');
+  if (!root) return;
+
+  // Find matching ITICS data across years
+  const years = ['2023','2024','2025'];
+  const icticsData = {};
+  years.forEach(yr => {
+    const match = (ITICS_RAW_DATA[yr]||[]).find(c => c.name === name);
+    if (match) icticsData[yr] = match;
+  });
+  const latestICTICS = icticsData['2025'] || icticsData['2024'] || icticsData['2023'] || null;
+
+  // Financials
+  const revLabel = revenue >= 1000 ? `${(revenue/1000).toFixed(1)}B` : `${revenue}M`;
+  const peClass  = pe < 15 ? 'pe-low' : pe < 35 ? 'pe-mid' : 'pe-high';
+
+  // Find L0 from ITICS data or theme map
+  const l0Sector = latestICTICS ? latestICTICS.l0 : (Object.entries(THEME_DESCRIPTIONS).find(([k])=>k===l1)?.[0] ? '' : '');
+  const icon = L0_ICONS[l0Sector] || '📊';
+
+  // Build ITICS taxonomy section
+  let icticsSection = '';
+  if (latestICTICS) {
+    const allYearsWithData = years.filter(yr => icticsData[yr]);
+    // Year tabs HTML (built into the section)
+    const yearTabsHTML = allYearsWithData.map(yr => `
+      <button class="modal-year-tab" id="tcd-yr-${yr}" onclick="switchTCDYear('${name.replace(/'/g,"\\'")}','${l1.replace(/'/g,"\\'")}',this)" style="font-size:12px;padding:6px 14px;">${yr}</button>`).join('');
+
+    icticsSection = `
+      <!-- ITICS taxonomy header -->
+      <div style="margin-bottom:18px;">
+        <div class="themedetail-section-tag" style="margin-bottom:6px;">ITICS Taxonomy</div>
+        <div class="themedetail-section-title" style="font-size:22px;margin-bottom:4px;">Full Revenue Segment Classification</div>
+        <p style="font-size:13px;color:var(--indxx-muted);line-height:1.6;margin-bottom:16px;">
+          Every operating segment mapped to L0 → L1 → L2 with revenue attribution and classification status.
+          Data sourced from annual filings and classified under the ITICS framework.
+        </p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
+          <div class="modal-year-tabs" style="gap:6px;" id="tcd-year-tabs">${yearTabsHTML}</div>
+          <div style="font-size:11px;color:var(--indxx-muted);">📅 Based on annual filing data</div>
+        </div>
+      </div>
+      <div id="tcd-segments-wrap">${buildTCDSegTable(latestICTICS, l1)}</div>
+
+      <!-- Classification legend -->
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:18px;padding:14px 18px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--indxx-muted);align-self:center;margin-right:4px;">Classification Guide:</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(0,200,180,0.15);color:var(--indxx-teal);border:1px solid rgba(0,200,180,0.3);font-weight:700;font-size:10px;">Pure Play</span> ≥ 50% revenue from segment</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(255,107,53,0.15);color:#ff9566;border:1px solid rgba(255,107,53,0.3);font-weight:700;font-size:10px;">Quasi</span> 20–49% revenue</div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:12px;"><span style="display:inline-block;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.06);color:var(--indxx-muted);border:1px solid rgba(255,255,255,0.1);font-weight:700;font-size:10px;">Marginal</span> &lt; 20% revenue</div>
+      </div>`;
+  } else {
+    icticsSection = `<div style="padding:32px;text-align:center;color:var(--indxx-muted);background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:14px;">
+      <div style="font-size:32px;margin-bottom:10px;">📋</div>
+      <div style="font-size:14px;">ITICS taxonomy data not available for this company in the current dataset.</div>
+    </div>`;
+  }
+
+  // KPI row
+  const kpiHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:36px;">
+      ${[
+        { label:'Total Revenue', value: revLabel, sub:'Annual (latest)' },
+        { label:'Theme Rev %',   value: themeRevPct+'%', sub: l1, color:'#ff9566' },
+        { label:'P/E Ratio',     value: pe+'×', sub: pe<15?'Undervalued':pe<35?'Fair':'Premium', color: pe<15?'var(--indxx-teal)':pe<35?'#ffd166':'#ff8080' },
+        { label:'Dividend Yield',value: divYield>0 ? divYield+'%' : '—', sub: divYield>0?'Annualised':'No dividend' },
+      ].map(k=>`
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px 20px;">
+          <div style="font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--indxx-muted);margin-bottom:8px;">${k.label}</div>
+          <div style="font-family:'DM Serif Display',serif;font-size:26px;color:${k.color||'var(--white)'};line-height:1;">${k.value}</div>
+          <div style="font-size:10.5px;color:var(--indxx-muted);margin-top:5px;">${k.sub}</div>
+        </div>`).join('')}
+    </div>`;
+
+  // ITICS L0 badge
+  const l0BadgeHTML = latestICTICS ? `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+      <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--indxx-muted);">L0 Sector:</span>
+      <span class="pill-l0">${latestICTICS.l0}</span>
+      <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--indxx-muted);margin-left:8px;">ISIN:</span>
+      <span style="font-family:monospace;font-size:12px;color:rgba(255,255,255,0.7);">${latestICTICS.isin}</span>
+      <span style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--indxx-muted);margin-left:8px;">Market Cap:</span>
+      <span style="font-size:12.5px;font-weight:600;color:var(--indxx-teal);">${mcapFmt(latestICTICS.mcap)}</span>
+    </div>` : '';
+
+  root.innerHTML = `
+    <!-- Hero -->
+    <div class="themedetail-hero">
+      <div class="themedetail-hero-glow"></div>
+      <button class="themedetail-back" onclick="openThemeDetail('${l1.replace(/'/g,"\\'")}')">← Back to ${l1}</button>
+      <div class="themedetail-hero-row" style="gap:24px;">
+        <div style="flex:1;min-width:0;">
+          <div class="themedetail-sector-tag">${icon} &nbsp;${l1}</div>
+          <div class="themedetail-title" style="font-size:clamp(28px,4vw,48px);">${name}</div>
+          ${l0BadgeHTML}
+          <div class="themedetail-as-of" style="margin-top:10px;">
+            📍 &nbsp;${country} &nbsp;·&nbsp; 🏷️ &nbsp;${ticker}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="themedetail-body">
+
+      <!-- KPIs -->
+      <div class="themedetail-section-tag">Financial Snapshot</div>
+      <div class="themedetail-section-title" style="font-size:22px;margin-bottom:18px;">Key Metrics at a Glance</div>
+      ${kpiHTML}
+
+      <!-- ITICS Taxonomy -->
+      <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:32px 36px;margin-bottom:32px;">
+        ${icticsSection}
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="td-disclaimer">
+        ⚠️ <strong>Data source:</strong> Financial metrics sourced from publicly available filings and consensus estimates as of Q1 2025.
+        ITICS taxonomy classifications based on annual report segment disclosures as classified under the Indxx Thematic Industry Classification System.
+        Revenue percentages reflect segment-level attribution. This is for informational and classification purposes only and does not constitute investment advice.
+      </div>
+    </div>`;
+
+  // Activate the last year tab by default
+  const availYears = years.filter(yr => icticsData[yr]);
+  if (availYears.length) {
+    const lastYr = availYears[availYears.length - 1];
+    const btn = document.getElementById('tcd-yr-' + lastYr);
+    if (btn) btn.classList.add('active');
+    // Store icticsData on window for year switching
+    window._tcdIcticsData = icticsData;
+  }
+
+  // Scroll to top
+  window.scrollTo(0, 0);
+}
+
+function buildTCDSegTable(company, activL1) {
+  const segs = [...company.segments].filter(s => s.revPct >= 0).sort((a,b) => b.revPct - a.revPct);
+
+  // Group by L1
+  const l1Map = {};
+  segs.forEach(s => {
+    if (!l1Map[s.l1]) l1Map[s.l1] = { segs:[], total:0 };
+    l1Map[s.l1].segs.push(s);
+    l1Map[s.l1].total += s.revPct;
+  });
+  const l1Groups = Object.entries(l1Map).sort((a,b) => b[1].total - a[1].total);
+
+  const rows = l1Groups.map(([l1Name, grp]) => {
+    const isActiveL1 = l1Name === activL1;
+    const l1Color = isActiveL1 ? 'var(--indxx-teal)' : 'rgba(255,255,255,0.5)';
+    const l1BgRow = isActiveL1 ? 'rgba(0,200,180,0.06)' : 'rgba(255,255,255,0.02)';
+    const l1Border = isActiveL1 ? 'rgba(0,200,180,0.2)' : 'rgba(255,255,255,0.05)';
+
+    // L1 group header
+    let html = `<tr>
+      <td colspan="5" style="padding:10px 16px;background:${l1BgRow};border-top:1px solid ${l1Border};border-bottom:1px solid ${l1Border};">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          ${isActiveL1 ? '<span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:2px 8px;border-radius:4px;background:rgba(0,200,180,0.15);color:var(--indxx-teal);border:1px solid rgba(0,200,180,0.3);">Active Theme</span>' : ''}
+          <span style="font-size:12px;font-weight:700;color:${l1Color};text-transform:uppercase;letter-spacing:0.6px;">${l1Name}</span>
+          ${codeMap.l1[l1Name] ? `<span style="font-size:9.5px;font-family:monospace;color:rgba(138,147,168,0.55);">${codeMap.l1[l1Name]}</span>` : ''}
+          <div style="flex:1;height:1px;background:rgba(255,255,255,0.06);min-width:20px;"></div>
+          <span style="font-size:12px;font-weight:700;color:${l1Color};">${grp.total.toFixed(1)}% total</span>
+        </div>
+      </td>
+    </tr>`;
+
+    // L2 rows
+    grp.segs.forEach(s => {
+      const rc = REV_COLORS[s.revClass] || '#4a5568';
+      const isMatchSeg = s.l1 === activL1;
+      html += `<tr style="${isMatchSeg ? 'background:rgba(0,200,180,0.03);' : ''}">
+        <td style="padding:10px 16px 10px 32px;${isMatchSeg ? 'border-left:3px solid var(--indxx-teal);' : 'border-left:3px solid transparent;'}">
+          <div style="font-size:13px;font-weight:500;color:rgba(255,255,255,0.88);">${s.l2}</div>
+          ${codeMap.l2[s.l2] ? `<div style="font-size:9.5px;font-family:monospace;color:rgba(138,147,168,0.5);margin-top:2px;">${codeMap.l2[s.l2]}</div>` : ''}
+        </td>
+        <td style="padding:10px 16px;">
+          <span style="font-size:11px;color:rgba(255,255,255,0.5);">${s.l0}</span>
+        </td>
+        <td style="padding:10px 16px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div style="width:80px;height:5px;background:rgba(255,255,255,0.08);border-radius:3px;flex-shrink:0;">
+              <div style="width:${Math.min(s.revPct,100)}%;height:5px;background:${rc};border-radius:3px;"></div>
+            </div>
+            <span style="font-size:13px;font-weight:700;color:var(--white);min-width:42px;">${s.revPct.toFixed(1)}%</span>
+          </div>
+        </td>
+        <td style="padding:10px 16px;">
+          <span class="pill-class pill-${s.revClass==='Pure Play'?'pure':s.revClass==='Quasi'?'quasi':'marginal'}">${s.revClass}</span>
+        </td>
+        <td style="padding:10px 16px;">
+          <div style="font-size:11px;color:rgba(138,147,168,0.6);">
+            ${s.revClass === 'Pure Play' ? '≥ 50% of revenue' : s.revClass === 'Quasi' ? '20–49% of revenue' : '< 20% of revenue'}
+          </div>
+        </td>
+      </tr>`;
+    });
+    return html;
+  }).join('');
+
+  return `
+    <div style="overflow-x:auto;border:1px solid rgba(255,255,255,0.07);border-radius:12px;background:var(--indxx-navy);">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:680px;">
+        <thead>
+          <tr style="background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.07);">
+            <th style="padding:11px 16px 11px 32px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:var(--indxx-muted);">L2 Sub-Theme</th>
+            <th style="padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:var(--indxx-muted);">L0 Sector</th>
+            <th style="padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:var(--indxx-muted);">Revenue %</th>
+            <th style="padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:var(--indxx-muted);">Classification</th>
+            <th style="padding:11px 16px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.9px;color:var(--indxx-muted);">Threshold</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function switchTCDYear(name, l1, btn) {
+  // Deactivate all year tab buttons
+  document.querySelectorAll('#tcd-year-tabs .modal-year-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  const yr = btn.textContent.trim();
+  const data = (window._tcdIcticsData || {})[yr];
+  const wrap = document.getElementById('tcd-segments-wrap');
+  if (!wrap) return;
+  if (data) {
+    wrap.innerHTML = buildTCDSegTable(data, l1);
+  } else {
+    wrap.innerHTML = `<div style="padding:24px;text-align:center;color:var(--indxx-muted);font-size:13px;">No data available for ${yr}.</div>`;
+  }
+}
+
 function openThemeDetail(l1) {
   _activeTheme = l1;
   renderThemeDetail(l1);
@@ -3537,10 +3775,9 @@ function renderThemeDetail(l1) {
   // ── Cards HTML
   const cardsHTML = sorted.map((c, i) => {
     const peClass = c.pe < 15 ? 'pe-low' : c.pe < 35 ? 'pe-mid' : 'pe-high';
-    const barColor = '#00c8b4';
     const revenueLabel = c.revenue >= 1000 ? `${(c.revenue/1000).toFixed(0)}B` : `${c.revenue}M`;
     return `
-      <div class="td-company-card">
+      <div class="td-company-card" onclick="openThemeCompanyDetail('${c.name.replace(/'/g,"\\'")}','${l1.replace(/'/g,"\\'")}','${c.ticker.replace(/'/g,"\\'")}','${c.country.replace(/'/g,"\\'")}',${c.revenue},${c.themeRevPct},${c.pe},${c.divYield})" style="cursor:pointer;">
         <div class="td-rank">${i+1}</div>
         <div class="td-company-name">${c.name}</div>
         <div class="td-company-ticker">${c.ticker} · ${c.country}</div>
@@ -3565,6 +3802,7 @@ function renderThemeDetail(l1) {
             <span class="td-metric-val">${c.divYield > 0 ? c.divYield + '%' : '—'}</span>
           </div>
         </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07);font-size:11.5px;font-weight:600;color:var(--indxx-accent);display:flex;align-items:center;gap:5px;">View Full ITICS Profile <span style="font-size:10px;">→</span></div>
       </div>`;
   }).join('');
 
@@ -5265,12 +5503,14 @@ function showContactForm(plan) {
 }
 
 function submitContactForm(e) {
-  e.preventDefault();
-  const btn = e.target.querySelector('[type=submit]');
-  btn.textContent = '✓ Enquiry Submitted — We\'ll be in touch shortly';
-  btn.style.background = '#00c8b4';
-  btn.style.boxShadow = '0 4px 20px rgba(0,200,180,0.35)';
-  btn.disabled = true;
+  if (e && e.preventDefault) e.preventDefault();
+  const btn = document.querySelector('#contact-section .btn-primary');
+  if (btn) {
+    btn.textContent = '✓ Enquiry Submitted — We\'ll be in touch shortly';
+    btn.style.background = '#00c8b4';
+    btn.style.boxShadow = '0 4px 20px rgba(0,200,180,0.35)';
+    btn.disabled = true;
+  }
 }
 
 // ═══════════════════════════════════════════════════
