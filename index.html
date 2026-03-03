@@ -94,6 +94,408 @@ html.light .tax-l2 {
   background: rgba(0,0,0,0.03);
 }
 
+/* ─── LIGHT THEME: GLOBAL TEXT READABILITY ───────── */
+
+/* Nav items */
+html.light .nav-logo-itics { color: #0a0d14; }
+html.light .nav-tab.active { color: #0a0d14; }
+html.light .nav-tab:hover { color: #0a0d14; background: rgba(0,0,0,0.06); }
+html.light .btn-ghost { color: #5a647a; border-color: rgba(0,0,0,0.14); }
+html.light .btn-ghost:hover { color: #0a0d14; border-color: rgba(0,0,0,0.25); }
+
+/* Stats bar */
+html.light .stat-value { color: #0a0d14; }
+
+/* Plan pricing page */
+html.light .plan-price-main { color: #0a0d14; }
+html.light .plan-name { color: #0a0d14; }
+
+/* Profile nav */
+html.light .profile-nav-name { color: #0a0d14; }
+
+/* No results state */
+html.light .no-results h3 { color: #0a0d14; }
+
+/* Data playground table cells */
+html.light .seg-l1-total { color: #0a0d14; }
+html.light .cell-rev-pct { color: #0a0d14; }
+
+/* Tax-tree in sector filter (screener plan modal) */
+html.light .tax-tree-label { color: #0a0d14; }
+html.light .tax-tree-label.l2-label { color: rgba(10,13,20,0.75); }
+html.light .tax-tree-row:hover { background: rgba(0,0,0,0.04); }
+
+/* Screener plan modal (Build Your Universe) */
+html.light .sp-breakdown-card {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.10);
+}
+html.light .sp-breakdown-row { border-bottom-color: rgba(0,0,0,0.06); }
+html.light .sp-breakdown-value { color: #0a0d14; }
+html.light .sp-total-label { color: #0a0d14; }
+html.light .sp-matched-name { color: #0a0d14; }
+html.light .sp-matched-list { background: rgba(0,200,180,0.04); }
+html.light .sp-matched-item { border-bottom-color: rgba(0,200,180,0.10); }
+html.light .universe-value { color: #0a0d14; }
+html.light .pm-company-list {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+}
+html.light .pm-company-item { border-bottom-color: rgba(0,0,0,0.06); }
+html.light .pm-co-name { color: #0a0d14; }
+
+/* PPS modal (Pay-Per-Security) */
+html.light .pps-breakdown-card {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.10);
+}
+html.light .pps-breakdown-row { border-bottom-color: rgba(0,0,0,0.06); }
+html.light .pps-breakdown-value { color: #0a0d14; }
+html.light .pps-total-label { color: #0a0d14; }
+html.light .pps-matched-name { color: #0a0d14; }
+html.light .pps-matched-list {
+  border-color: rgba(0,200,180,0.15);
+}
+html.light .pps-matched-item { border-bottom-color: rgba(0,200,180,0.10); }
+
+/* Upload zone */
+html.light .upload-zone-title { color: #0a0d14; }
+html.light .upload-zone { border-color: rgba(0,0,0,0.15); }
+
+/* PPS / screener textarea */
+html.light .pps-isin-input,
+html.light textarea.form-textarea {
+  background: rgba(0,0,0,0.04);
+  color: #0a0d14;
+  border-color: rgba(0,0,0,0.14);
+}
+html.light .pps-isin-input::placeholder,
+html.light textarea.form-textarea::placeholder { color: #8a93a8; }
+
+/* Login hint */
+html.light .login-hint-creds:hover { color: #0a0d14; }
+
+/* Inline white text in dynamically generated HTML (JS-rendered) */
+html.light .themedetail-section-desc strong { color: #0a0d14; }
+html.light .pps-empty-text strong { color: #0a0d14; }
+
+/* Auth gate "Sign in to Continue" modal (inline style) */
+html.light [id="authgate-overlay"] [style*="color:var(--white)"] { color: #0a0d14 !important; }
+
+/* Inline white text in plan modal cost breakdown */
+html.light .plan-modal [style*="color:var(--white)"] { color: #0a0d14 !important; }
+html.light .plan-modal [style*="background:rgba(255,255,255,0.06)"] {
+  background: rgba(0,0,0,0.05) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+}
+
+/* Plan modal header + filter panel text */
+html.light .plan-modal-header { color: #0a0d14; }
+html.light .sp-col { color: #0a0d14; }
+
+/* Screener plan modal scrollbar */
+html.light .sp-col::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+
+/* PPS modal panels */
+html.light .pps-right { background: rgba(0,0,0,0.03); }
+html.light .pps-left::-webkit-scrollbar-thumb,
+html.light .pps-right::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); }
+html.light .pps-section-title { color: #0a0d14; }
+html.light .isin-textarea {
+  background: rgba(0,0,0,0.04);
+  color: #0a0d14;
+  border-color: rgba(0,0,0,0.12);
+}
+html.light .pps-year-btn {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.12);
+}
+html.light .pps-input-tabs { border-color: rgba(0,0,0,0.12); }
+html.light .isin-item { border-bottom-color: rgba(0,0,0,0.06); }
+
+/* PPS modal breakdown and sections */
+html.light .pps-breakdown-card {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.10);
+}
+html.light .pps-breakdown-row { border-bottom-color: rgba(0,0,0,0.06); }
+html.light .pps-breakdown-value { color: #0a0d14; }
+html.light .pps-total-label { color: #0a0d14; }
+html.light .pps-matched-name { color: #0a0d14; }
+html.light .pps-matched-list { border-color: rgba(0,200,180,0.15); }
+html.light .pps-matched-item { border-bottom-color: rgba(0,200,180,0.10); }
+html.light .pps-empty-text strong { color: #0a0d14; }
+
+/* Country text in playground table rows (JS inline style) */
+html.light .co-table td [style*="color:var(--white)"] { color: #0a0d14 !important; }
+
+/* seg-sub expand rows in playground */
+html.light .seg-sub-l2 { color: rgba(10,13,20,0.85); }
+html.light .seg-sub-code { color: rgba(90,100,122,0.55); }
+html.light .seg-sub-bar-wrap { background: rgba(0,0,0,0.08); }
+html.light .seg-subtable td { border-bottom-color: rgba(0,0,0,0.05); }
+html.light .seg-sub-rev [style*="color:var(--white)"] { color: #0a0d14 !important; }
+
+/* Lens footer strong */
+html.light .lens-footer strong { color: rgba(10,13,20,0.65); }
+
+/* Company detail page inline JS-rendered text */
+html.light .themedetail-body [style*="color:rgba(255,255,255,0.7)"] { color: #2a3550 !important; }
+html.light .themedetail-body [style*="color:var(--white)"] { color: #0a0d14 !important; }
+
+/* Upload zone */
+html.light .upload-zone-title { color: #0a0d14; }
+html.light .upload-zone { border-color: rgba(0,0,0,0.15); }
+
+/* Inline price text in PPS modal pricing cards */
+html.light .plan-modal [style*="background:rgba(255,255,255,0.03)"] {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.10) !important;
+}
+
+/* Access pills in My Plan (JS sets inline yellow/teal on near-white bg — darken for legibility) */
+html.light #myplan-access-pills span {
+  background: rgba(0,0,0,0.05) !important;
+  border-color: rgba(0,0,0,0.15) !important;
+  color: #5a647a !important;
+}
+
+/* ─── LIGHT THEME: MY PLAN PAGE ─────────────────── */
+html.light #content-myplan [style*="background:linear-gradient(135deg,rgba(255,209,102"] {
+  background: linear-gradient(135deg, rgba(255,209,102,0.18), rgba(240,243,248,0.95)) !important;
+  border-color: rgba(255,165,0,0.35) !important;
+}
+html.light #content-myplan [style*="background:linear-gradient(135deg,rgba(0,200,180"] {
+  background: linear-gradient(135deg, rgba(0,200,180,0.12), rgba(240,243,248,0.95)) !important;
+  border-color: rgba(0,200,180,0.35) !important;
+}
+html.light #content-myplan [style*="background:rgba(255,255,255,0.1);border-radius:3px"] {
+  background: rgba(0,0,0,0.10) !important;
+}
+html.light #content-myplan [style*="background:rgba(232,65,65,0.1);border:1px solid rgba(232,65,65,0.3)"] {
+  background: rgba(232,65,65,0.08) !important;
+}
+html.light #myplan-card [style*="font-size:18px;font-weight:700"] { color: #0a0d14; }
+html.light #myplan-card [style*="font-size:15px;font-weight:600"] { color: #0a0d14; }
+
+/* Quick action cards on My Plan (use card-bg which is already overridden) */
+html.light #content-myplan [onmouseout*="rgba(255,255,255,0.08)"] {
+  border-color: rgba(0,0,0,0.10) !important;
+}
+
+/* What's included panel — features list rows (inline-styled from JS) */
+html.light #myplan-features [style*="border-bottom:1px solid rgba(255,255,255,0.04)"] {
+  border-bottom-color: rgba(0,0,0,0.07) !important;
+}
+
+/* ─── LIGHT THEME: DATA PLAYGROUND SCREENER ─────── */
+html.light .table-outer {
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.10);
+}
+html.light .table-outer::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+
+html.light .co-table thead tr { background: rgba(0,0,0,0.04); }
+html.light .co-table th {
+  background: #edf0f6;
+  color: #5a647a;
+  border-right-color: rgba(0,0,0,0.06);
+}
+html.light .co-table th:hover { color: #0a0d14; }
+html.light .co-table tbody tr.co-row { border-bottom-color: rgba(0,0,0,0.06); }
+html.light .co-table tbody tr.co-row:hover { background: rgba(0,0,0,0.03); }
+html.light .co-table tbody tr.co-row.expanded { background: rgba(232,65,65,0.04); }
+html.light .co-table td { border-right-color: rgba(0,0,0,0.04); }
+
+html.light .cell-co-name { color: #0a0d14; }
+html.light .cell-co-id { color: rgba(90,100,122,0.6); }
+html.light .cell-l2 { color: rgba(10,13,20,0.82); }
+html.light .cell-l2-code { color: rgba(90,100,122,0.55); }
+
+html.light tr.co-detail-row {
+  background: rgba(240,243,248,0.8);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+
+html.light .seg-l1-group-header.unmatched td {
+  background: rgba(0,0,0,0.02);
+  border-color: rgba(0,0,0,0.06);
+}
+
+html.light .export-dropdown {
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.10);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+html.light .export-option { border-bottom-color: rgba(0,0,0,0.07); }
+html.light .export-option:hover { background: rgba(0,0,0,0.04); }
+html.light .export-format-btn {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: #5a647a;
+}
+html.light .export-year-pick {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: #0a0d14;
+}
+html.light .export-year-pick option { background: #ffffff; color: #0a0d14; }
+
+html.light .filter-chip {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: rgba(10,13,20,0.75);
+}
+html.light .filter-chip:hover {
+  background: rgba(0,0,0,0.08);
+  border-color: rgba(0,0,0,0.18);
+}
+html.light .filter-chip-x { color: rgba(10,13,20,0.4); }
+
+html.light .range-input,
+html.light .select-input {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: #0a0d14;
+}
+html.light .select-input option { background: #ffffff; color: #0a0d14; }
+
+html.light .ms-option { border-bottom-color: rgba(0,0,0,0.05); }
+html.light .ms-option:hover { background: rgba(0,0,0,0.04); }
+html.light .ms-option-label { color: #0a0d14; }
+html.light .multi-select-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+
+html.light .results-meta strong { color: #0a0d14; }
+
+/* ─── LIGHT THEME: THEME DETAIL & COMPANY PAGES ── */
+html.light .themedetail-hero {
+  background: linear-gradient(135deg, #e8edf6 0%, #dbe4f5 55%, #e4eaf8 100%);
+}
+html.light .themedetail-back {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: #5a647a;
+}
+html.light .themedetail-back:hover {
+  background: rgba(0,0,0,0.10);
+  color: #0a0d14;
+}
+html.light .themedetail-herostat {
+  background: rgba(255,255,255,0.75);
+  border-color: rgba(0,0,0,0.10);
+}
+html.light .themedetail-herostat-val { color: #0a0d14; }
+html.light .themedetail-as-of {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.10);
+}
+html.light .themedetail-section-title { color: #0a0d14; }
+html.light .themedetail-title { color: #0a0d14; }
+html.light .td-company-card {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(0,0,0,0.10);
+}
+html.light .td-company-card:hover { box-shadow: 0 12px 40px rgba(0,0,0,0.12); }
+html.light .td-company-name { color: #0a0d14; }
+html.light .td-metric-val { color: #0a0d14; }
+html.light .td-bar-wrap { background: rgba(0,0,0,0.08); }
+html.light .td-company-ticker { border-bottom-color: rgba(0,0,0,0.08); }
+html.light .td-table-outer { background: #ffffff; border-color: rgba(0,0,0,0.10); }
+html.light .td-comp-table thead tr { background: rgba(0,0,0,0.04); }
+html.light .td-comp-table tbody tr { border-bottom-color: rgba(0,0,0,0.06); }
+html.light .td-comp-table tbody tr:hover { background: rgba(0,0,0,0.03); }
+html.light .td-comp-name { color: #0a0d14; }
+html.light .td-inline-bar-wrap { background: rgba(0,0,0,0.08); }
+html.light .td-div-pill {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: #0a0d14;
+}
+html.light .td-disclaimer {
+  background: rgba(0,0,0,0.03);
+  border-color: rgba(0,0,0,0.08);
+}
+html.light .td-disclaimer strong { color: rgba(0,0,0,0.75); }
+
+/* KPI & taxonomy boxes in company detail (inline-styled divs) */
+html.light .themedetail-body > div [style*="rgba(255,255,255,0.04)"],
+html.light .themedetail-body [style*="background:rgba(255,255,255,0.04)"] {
+  background: rgba(255,255,255,0.85) !important;
+  border-color: rgba(0,0,0,0.10) !important;
+}
+html.light .themedetail-body [style*="rgba(255,255,255,0.02)"],
+html.light .themedetail-body [style*="rgba(255,255,255,0.03)"] {
+  background: rgba(0,0,0,0.03) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+}
+html.light .themedetail-body [style*="rgba(255,255,255,0.07)"] {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+html.light .themedetail-body [style*="background:var(--indxx-navy)"] {
+  background: #ffffff !important;
+}
+html.light .themedetail-body [style*="background:rgba(255,255,255,0.04)"] {
+  background: rgba(0,0,0,0.03) !important;
+}
+html.light .themedetail-body [style*="color:rgba(255,255,255,0.88)"],
+html.light .themedetail-body [style*="color:rgba(255,255,255,0.7)"] {
+  color: #1a2040 !important;
+}
+html.light .themedetail-body [style*="color:rgba(255,255,255,0.5)"] {
+  color: #5a647a !important;
+}
+html.light .themedetail-body [style*="height:1px;background:rgba(255,255,255"] {
+  background: rgba(0,0,0,0.10) !important;
+}
+html.light .themedetail-body [style*="height:5px;background:rgba(255,255,255,0.08)"],
+html.light .themedetail-body [style*="height:5px;background:rgba(255,255,255"] {
+  background: rgba(0,0,0,0.08) !important;
+}
+html.light .themedetail-body [style*="rgba(138,147,168"] {
+  color: #8a93a8 !important;
+}
+html.light .themedetail-body [style*="background:rgba(0,0,0,0.15)"] {
+  background: rgba(0,0,0,0.04) !important;
+}
+
+/* ─── LIGHT THEME: LENS (COMPANY POPUP) MODAL ─── */
+html.light .lens-modal {
+  background: #ffffff;
+  border-color: rgba(0,0,0,0.10);
+  color: #0a0d14;
+}
+html.light .lens-modal::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); }
+html.light .lens-header {
+  background: linear-gradient(135deg, rgba(26,45,90,0.08), rgba(240,243,248,0.9));
+  border-bottom-color: rgba(0,0,0,0.08);
+  border-radius: 22px 22px 0 0;
+}
+html.light .lens-co-name { color: #0a0d14; }
+html.light .lens-ticker-badge {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.12);
+  color: #0a0d14;
+}
+html.light .lens-close {
+  background: rgba(0,0,0,0.05);
+  border-color: rgba(0,0,0,0.10);
+  color: #0a0d14;
+}
+html.light .lens-kpi-bar { border-bottom-color: rgba(0,0,0,0.08); }
+html.light .lens-kpi { border-right-color: rgba(0,0,0,0.08); }
+html.light .lens-kpi-value { color: #0a0d14; }
+html.light .lens-class-heading { border-bottom-color: rgba(0,0,0,0.08); }
+html.light .lens-class-name { color: rgba(0,0,0,0.85); }
+html.light .lens-class-bar-outer { background: rgba(0,0,0,0.08); }
+html.light .lens-class-pct { color: #0a0d14; }
+html.light .lens-donut-center-name { color: #0a0d14; }
+html.light .lens-footer {
+  background: rgba(0,0,0,0.03);
+  border-top-color: rgba(0,0,0,0.07);
+  color: rgba(90,100,122,0.8);
+  border-radius: 0 0 22px 22px;
+}
+
 /* ─── LIGHT THEME: MODALS & FORMS ───────────────── */
 html.light .modal {
   background: #ffffff;
