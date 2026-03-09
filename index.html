@@ -793,37 +793,65 @@ body {
   display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px;
 }
 .trend-card {
-  background: var(--card-bg);
   border: 1px solid var(--indxx-border);
-  border-radius: 14px; padding: 24px 20px;
+  border-radius: 14px; padding: 0;
   cursor: pointer; transition: var(--transition);
   position: relative; overflow: hidden;
+  min-height: 240px;
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
 }
 .trend-card::before {
   content: '';position: absolute; inset: 0;
   background: linear-gradient(135deg, rgba(232,65,65,0.08), transparent);
-  opacity: 0; transition: var(--transition);
+  opacity: 0; transition: var(--transition); z-index: 3;
 }
-.trend-card:hover { border-color: rgba(232,65,65,0.4); transform: translateY(-3px); }
+.trend-card:hover { border-color: rgba(232,65,65,0.4); transform: translateY(-5px); box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
 .trend-card:hover::before { opacity: 1; }
+.trend-card:hover .trend-img-bg { transform: scale(1.06); }
+
+.trend-img-bg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  display: block;
+  transition: transform 0.6s cubic-bezier(0.22,1,0.36,1);
+  z-index: 0;
+}
+.trend-img-wrap {
+  position: absolute; inset: 0; overflow: hidden;
+  border-radius: 14px;
+  z-index: 0;
+}
+.trend-img-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,13,20,0.15) 0%, rgba(10,13,20,0.55) 50%, rgba(10,13,20,0.92) 100%);
+  z-index: 1;
+}
 .trend-rank {
-  font-size: 11px; font-weight: 600; color: var(--indxx-accent);
-  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+  position: absolute; top: 12px; left: 14px; z-index: 4;
+  font-size: 10px; font-weight: 700; color: #fff;
+  text-transform: uppercase; letter-spacing: 1px;
+  background: rgba(232,65,65,0.88); padding: 4px 12px; border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+.trend-body {
+  padding: 20px 18px 18px; position: relative; z-index: 2;
 }
 .trend-icon {
-  font-size: 28px; margin-bottom: 12px; display: block;
+  display: none;
 }
 .trend-name {
-  font-size: 14px; font-weight: 600; margin-bottom: 6px; line-height: 1.3;
+  font-size: 15px; font-weight: 700; margin-bottom: 5px; line-height: 1.3;
+  color: #fff;
 }
 .trend-sector {
-  font-size: 11.5px; color: var(--indxx-muted);
+  font-size: 11.5px; color: rgba(255,255,255,0.55);
 }
 .trend-count {
-  margin-top: 16px; padding-top: 16px;
-  border-top: 1px solid var(--indxx-border);
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.12);
   font-size: 12px; color: var(--indxx-teal);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* ─── WHAT IS ITICS ──────────────────────────────── */
@@ -3011,6 +3039,12 @@ html.light .use-card:hover::after,
 html.light .trend-card:hover::before {
   opacity: 0.8;
 }
+html.light .trend-img-overlay {
+  background: linear-gradient(180deg, rgba(240,243,248,0) 20%, rgba(240,243,248,0.6) 100%);
+}
+html.light .trend-rank {
+  background: rgba(232,65,65,0.9);
+}
 </style>
 </head>
 <body>
@@ -3093,7 +3127,7 @@ html.light .trend-card:hover::before {
     <div class="hero-grid"></div>
     <div class="hero-glow"></div>
     <div class="hero-particles" id="hero-particles"></div>
-    <div class="hero-badge"><span class="hero-badge-dot"></span>Smart Equity Data Classification</div>
+    <div class="hero-badge"><span class="hero-badge-dot"></span>Trusted by Index Providers & Asset Managers Worldwide</div>
     <h1>Classify Markets.<br>Capture <span class="accent">Alpha.</span></h1>
     <p class="hero-sub">The most granular, revenue-driven equity classification system — mapping 15,000+ companies across 700+ sub-themes so you see exactly where revenue comes from.</p>
     <div class="hero-ctas">
@@ -4821,15 +4855,29 @@ function openLens(companyName, year) {
     buildCompanySunburst(lensSvg, company, { cx: 200, cy: 200, r0in: 84, r0out: 106, r1in: 110, r1out: 140, r2in: 144, r2out: 172 });
   }
 
+  // Shared color palette (must match buildCompanySunburst COLORS)
+  const CHART_COLORS = ['#e84141','#00c8b4','#ff6b35','#6b8aff','#ffd166','#c77dff','#ff85a1','#48bfe3','#38b2ac','#f7c359'];
+
+  // Build L1→color map (same order as sunburst: sorted by pct desc)
+  const l1ColorMap = {};
+  l1Entries.forEach(([name], i) => { l1ColorMap[name] = CHART_COLORS[i % CHART_COLORS.length]; });
+
+  // Build L2→parent L1 map to inherit color
+  const l2ParentL1 = {};
+  company.segments.filter(s=>s.revPct>0).forEach(s => {
+    const key = s.l2 || s.l1;
+    if (!l2ParentL1[key]) l2ParentL1[key] = s.l1;
+  });
+
   // ── L1 classification list
   const l1RowsEl = document.getElementById('lens-l1-rows');
   l1RowsEl.innerHTML = l1Entries.map(([ name, pct ], i) => `
     <div class="lens-class-row">
-      <span class="lens-class-dot" style="background:${LENS_PALETTE_L1[i % LENS_PALETTE_L1.length]};"></span>
+      <span class="lens-class-dot" style="background:${CHART_COLORS[i % CHART_COLORS.length]};"></span>
       <span class="lens-class-name">${name}</span>
       <div class="lens-class-pct-wrap">
         <div class="lens-class-bar-outer">
-          <div class="lens-class-bar-inner" style="width:${Math.min(pct,100)}%;background:${LENS_PALETTE_L1[i % LENS_PALETTE_L1.length]};"></div>
+          <div class="lens-class-bar-inner" style="width:${Math.min(pct,100)}%;background:${CHART_COLORS[i % CHART_COLORS.length]};"></div>
         </div>
         <span class="lens-class-pct">${pct.toFixed(2)}%</span>
       </div>
@@ -4837,17 +4885,21 @@ function openLens(companyName, year) {
 
   // ── L2 classification list
   const l2RowsEl = document.getElementById('lens-l2-rows');
-  l2RowsEl.innerHTML = l2Entries.map(([ name, pct ], i) => `
+  l2RowsEl.innerHTML = l2Entries.map(([ name, pct ], i) => {
+    const parentL1 = l2ParentL1[name] || '';
+    const color = l1ColorMap[parentL1] || CHART_COLORS[i % CHART_COLORS.length];
+    return `
     <div class="lens-class-row">
-      <span class="lens-class-dot" style="background:${LENS_PALETTE_L2[i % LENS_PALETTE_L2.length]};"></span>
+      <span class="lens-class-dot" style="background:${color};"></span>
       <span class="lens-class-name">${name}</span>
       <div class="lens-class-pct-wrap">
         <div class="lens-class-bar-outer">
-          <div class="lens-class-bar-inner" style="width:${Math.min(pct,100)}%;background:${LENS_PALETTE_L2[i % LENS_PALETTE_L2.length]};"></div>
+          <div class="lens-class-bar-inner" style="width:${Math.min(pct,100)}%;background:${color};"></div>
         </div>
         <span class="lens-class-pct">${pct.toFixed(2)}%</span>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   document.getElementById('lens-overlay').classList.add('show');
   document.body.style.overflow = 'hidden';
@@ -5359,16 +5411,139 @@ function buildTrending() {
     });
   });
   const top5 = Object.entries(l1Counts).sort((a,b) => b[1]-a[1]).slice(0,5);
+
+  // Inline SVG data URIs — full-card theme illustrations
+  function themeSvg(shapes) {
+    return "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">' + shapes + '</svg>');
+  }
+
+  const THEME_VISUALS = {
+    'Banking': themeSvg(
+      '<rect width="400" height="400" fill="#0d2137"/>' +
+      '<circle cx="140" cy="140" r="65" fill="none" stroke="#ffd166" stroke-width="1.5" opacity="0.25"/>' +
+      '<circle cx="140" cy="140" r="45" fill="none" stroke="#ffd166" stroke-width="1" opacity="0.18"/>' +
+      '<circle cx="140" cy="140" r="12" fill="#ffd166" opacity="0.1"/>' +
+      '<line x1="140" y1="95" x2="140" y2="75" stroke="#ffd166" stroke-width="1.5" opacity="0.2"/>' +
+      '<line x1="140" y1="185" x2="140" y2="205" stroke="#ffd166" stroke-width="1.5" opacity="0.2"/>' +
+      '<line x1="95" y1="140" x2="75" y2="140" stroke="#ffd166" stroke-width="1.5" opacity="0.2"/>' +
+      '<line x1="185" y1="140" x2="205" y2="140" stroke="#ffd166" stroke-width="1.5" opacity="0.2"/>' +
+      '<rect x="260" y="120" width="22" height="140" rx="3" fill="#e84141" opacity="0.3"/>' +
+      '<rect x="290" y="80" width="22" height="180" rx="3" fill="#00c8b4" opacity="0.3"/>' +
+      '<rect x="320" y="100" width="22" height="160" rx="3" fill="#ffd166" opacity="0.3"/>' +
+      '<rect x="350" y="60" width="22" height="200" rx="3" fill="#6b8aff" opacity="0.25"/>' +
+      '<ellipse cx="80" cy="330" rx="30" ry="10" fill="#ffd166" opacity="0.1"/>' +
+      '<ellipse cx="80" cy="320" rx="30" ry="10" fill="#ffd166" opacity="0.12"/>' +
+      '<ellipse cx="80" cy="310" rx="30" ry="10" fill="#ffd166" opacity="0.15"/>' +
+      '<line x1="20" y1="260" x2="380" y2="260" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>'
+    ),
+    'Financial Services': themeSvg(
+      '<rect width="400" height="400" fill="#0a1e38"/>' +
+      '<polygon points="20,320 80,270 140,280 200,210 260,230 320,160 380,100 380,400 20,400" fill="#00c8b4" opacity="0.07"/>' +
+      '<polyline points="20,320 80,270 140,280 200,210 260,230 320,160 380,100" fill="none" stroke="#00c8b4" stroke-width="2.5" opacity="0.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<polyline points="20,340 80,300 140,310 200,260 260,270 320,210 380,160" fill="none" stroke="#e84141" stroke-width="1.5" opacity="0.25" stroke-dasharray="5,5"/>' +
+      '<circle cx="200" cy="210" r="4" fill="#00c8b4" opacity="0.8"/><circle cx="320" cy="160" r="4" fill="#00c8b4" opacity="0.8"/><circle cx="380" cy="100" r="5" fill="#00c8b4" opacity="0.9"/>' +
+      '<line x1="55" y1="60" x2="55" y2="150" stroke="#00c8b4" stroke-width="1" opacity="0.2"/><rect x="48" y="70" width="14" height="40" fill="#00c8b4" opacity="0.15"/>' +
+      '<line x1="85" y1="80" x2="85" y2="160" stroke="#e84141" stroke-width="1" opacity="0.2"/><rect x="78" y="95" width="14" height="35" fill="#e84141" opacity="0.15"/>' +
+      '<line x1="115" y1="50" x2="115" y2="140" stroke="#00c8b4" stroke-width="1" opacity="0.2"/><rect x="108" y="60" width="14" height="40" fill="#00c8b4" opacity="0.15"/>' +
+      '<line x1="145" y1="70" x2="145" y2="155" stroke="#ffd166" stroke-width="1" opacity="0.2"/><rect x="138" y="85" width="14" height="30" fill="#ffd166" opacity="0.12"/>' +
+      '<text x="280" y="310" font-size="100" fill="#ffd166" opacity="0.04" font-family="serif" font-weight="700">$</text>'
+    ),
+    'Pharmaceuticals': themeSvg(
+      '<rect width="400" height="400" fill="#1a1040"/>' +
+      '<path d="M70,20 Q140,100 70,180 Q0,260 70,340 Q140,400 70,400" fill="none" stroke="#c77dff" stroke-width="1.5" opacity="0.25"/>' +
+      '<path d="M110,20 Q40,100 110,180 Q180,260 110,340 Q40,400 110,400" fill="none" stroke="#6b8aff" stroke-width="1.5" opacity="0.25"/>' +
+      '<line x1="75" y1="60" x2="105" y2="60" stroke="#c77dff" stroke-width="0.8" opacity="0.2"/>' +
+      '<line x1="55" y1="130" x2="125" y2="130" stroke="#6b8aff" stroke-width="0.8" opacity="0.2"/>' +
+      '<line x1="75" y1="200" x2="105" y2="200" stroke="#c77dff" stroke-width="0.8" opacity="0.2"/>' +
+      '<line x1="55" y1="270" x2="125" y2="270" stroke="#6b8aff" stroke-width="0.8" opacity="0.2"/>' +
+      '<circle cx="270" cy="160" r="40" fill="none" stroke="#ff85a1" stroke-width="1.5" opacity="0.3"/>' +
+      '<circle cx="270" cy="160" r="14" fill="#ff85a1" opacity="0.1"/>' +
+      '<circle cx="225" cy="115" r="18" fill="none" stroke="#6b8aff" stroke-width="1" opacity="0.25"/><circle cx="225" cy="115" r="6" fill="#6b8aff" opacity="0.1"/>' +
+      '<circle cx="325" cy="125" r="15" fill="none" stroke="#00c8b4" stroke-width="1" opacity="0.25"/><circle cx="325" cy="125" r="5" fill="#00c8b4" opacity="0.1"/>' +
+      '<circle cx="300" cy="215" r="16" fill="none" stroke="#ffd166" stroke-width="1" opacity="0.2"/><circle cx="300" cy="215" r="5" fill="#ffd166" opacity="0.08"/>' +
+      '<line x1="242" y1="132" x2="253" y2="145" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>' +
+      '<line x1="298" y1="140" x2="313" y2="130" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>' +
+      '<line x1="282" y1="195" x2="290" y2="205" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>' +
+      '<rect x="200" y="300" width="80" height="30" rx="15" fill="none" stroke="#ff85a1" stroke-width="1.2" opacity="0.25"/>' +
+      '<rect x="200" y="300" width="40" height="30" rx="15" fill="#ff85a1" opacity="0.08"/>' +
+      '<rect x="310" y="310" width="65" height="26" rx="13" fill="none" stroke="#00c8b4" stroke-width="1" opacity="0.2"/>' +
+      '<rect x="310" y="310" width="32" height="26" rx="13" fill="#00c8b4" opacity="0.06"/>'
+    ),
+    'Media Broadcasting and Advertisement': themeSvg(
+      '<rect width="400" height="400" fill="#1a0a30"/>' +
+      '<rect x="40" y="40" width="200" height="140" rx="8" fill="none" stroke="#c77dff" stroke-width="1.5" opacity="0.35"/>' +
+      '<rect x="50" y="50" width="180" height="120" rx="4" fill="#c77dff" opacity="0.04"/>' +
+      '<polygon points="115,80 115,140 160,110" fill="#c77dff" opacity="0.2" stroke="#c77dff" stroke-width="1"/>' +
+      '<rect x="100" y="190" width="80" height="5" rx="2" fill="#c77dff" opacity="0.15"/>' +
+      '<path d="M320,80 Q345,55 370,80" fill="none" stroke="#ff6b35" stroke-width="1.8" opacity="0.3"/>' +
+      '<path d="M310,80 Q345,40 380,80" fill="none" stroke="#ff6b35" stroke-width="1.3" opacity="0.22"/>' +
+      '<path d="M300,80 Q345,25 390,80" fill="none" stroke="#ff6b35" stroke-width="1" opacity="0.15"/>' +
+      '<circle cx="345" cy="80" r="8" fill="#ff6b35" opacity="0.3"/>' +
+      '<rect x="270" y="160" width="110" height="140" rx="6" fill="none" stroke="#e84141" stroke-width="1" opacity="0.2"/>' +
+      '<rect x="282" y="175" width="60" height="6" rx="1" fill="#e84141" opacity="0.18"/>' +
+      '<rect x="282" y="190" width="45" height="6" rx="1" fill="#ff6b35" opacity="0.12"/>' +
+      '<rect x="282" y="210" width="86" height="50" rx="3" fill="rgba(255,255,255,0.02)" stroke="rgba(255,255,255,0.06)" stroke-width="0.5"/>' +
+      '<rect x="282" y="272" width="40" height="16" rx="4" fill="#e84141" opacity="0.18"/>' +
+      '<circle cx="80" cy="310" r="30" fill="none" stroke="#ffd166" stroke-width="1" opacity="0.15"/>' +
+      '<circle cx="160" cy="340" r="22" fill="none" stroke="#00c8b4" stroke-width="1" opacity="0.12"/>' +
+      '<circle cx="220" cy="315" r="26" fill="none" stroke="#ff85a1" stroke-width="1" opacity="0.13"/>'
+    ),
+    'Semiconductor Products': themeSvg(
+      '<rect width="400" height="400" fill="#0a1220"/>' +
+      '<rect x="120" y="120" width="160" height="160" rx="6" fill="rgba(0,200,180,0.03)" stroke="#00c8b4" stroke-width="1.5" opacity="0.35"/>' +
+      '<rect x="150" y="150" width="100" height="100" rx="3" fill="rgba(0,200,180,0.04)" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<rect x="175" y="175" width="50" height="50" rx="2" fill="#00c8b4" opacity="0.06"/>' +
+      '<line x1="160" y1="120" x2="160" y2="75" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="185" y1="120" x2="185" y2="65" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="210" y1="120" x2="210" y2="70" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="235" y1="120" x2="235" y2="75" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="260" y1="120" x2="260" y2="80" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="160" y1="280" x2="160" y2="325" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="185" y1="280" x2="185" y2="335" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="210" y1="280" x2="210" y2="330" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="235" y1="280" x2="235" y2="325" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="260" y1="280" x2="260" y2="320" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="120" y1="160" x2="65" y2="160" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="120" y1="185" x2="55" y2="185" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="120" y1="210" x2="60" y2="210" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="120" y1="235" x2="65" y2="235" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="280" y1="160" x2="335" y2="160" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="280" y1="185" x2="345" y2="185" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="280" y1="210" x2="340" y2="210" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<line x1="280" y1="235" x2="335" y2="235" stroke="#00c8b4" stroke-width="1" opacity="0.25"/>' +
+      '<path d="M65,160 L35,160 L35,60 L100,60" fill="none" stroke="#6b8aff" stroke-width="0.8" opacity="0.15"/>' +
+      '<path d="M335,160 L365,160 L365,70 L310,70" fill="none" stroke="#e84141" stroke-width="0.8" opacity="0.15"/>' +
+      '<path d="M160,325 L160,365 L290,365 L290,325" fill="none" stroke="#ffd166" stroke-width="0.8" opacity="0.12"/>' +
+      '<circle cx="35" cy="350" r="12" fill="none" stroke="#6b8aff" stroke-width="0.8" opacity="0.12"/>' +
+      '<circle cx="365" cy="350" r="12" fill="none" stroke="#e84141" stroke-width="0.8" opacity="0.12"/>'
+    )
+  };
+
+  const FALLBACK_VISUAL = themeSvg(
+    '<rect width="400" height="400" fill="#0a1628"/>' +
+    '<circle cx="200" cy="180" r="80" fill="none" stroke="#00c8b4" stroke-width="1" opacity="0.12"/>' +
+    '<circle cx="200" cy="180" r="55" fill="none" stroke="#e84141" stroke-width="1" opacity="0.1"/>' +
+    '<circle cx="200" cy="180" r="30" fill="none" stroke="#ffd166" stroke-width="1" opacity="0.08"/>' +
+    '<polyline points="30,340 90,290 150,300 210,240 270,260 330,200 380,170" fill="none" stroke="#00c8b4" stroke-width="1.5" opacity="0.15"/>'
+  );
+
   const grid = document.getElementById('trending-grid');
-  grid.innerHTML = top5.map(([l1, count], i) => `
+  grid.innerHTML = top5.map(([l1, count], i) => {
+    const imgSrc = THEME_VISUALS[l1] || FALLBACK_VISUAL;
+    return `
     <div class="trend-card" onclick="filterByL1('${l1.replace(/'/g,"\\'")}')">
-      <div class="trend-rank">#${i+1} Trending</div>
-      <span class="trend-icon">${L0_ICONS[l1L0[l1]] || '📊'}</span>
-      <div class="trend-name">${l1}</div>
-      <div class="trend-sector">${l1L0[l1] || 'Multi-Sector'}</div>
-      <div class="trend-count">${count} companies · Explore →</div>
-    </div>
-  `).join('');
+      <div class="trend-img-wrap">
+        <img class="trend-img-bg" src="${imgSrc}" alt="${l1}">
+        <div class="trend-img-overlay"></div>
+        <div class="trend-rank">#${i+1} Trending</div>
+      </div>
+      <div class="trend-body">
+        <div class="trend-name">${l1}</div>
+        <div class="trend-sector">${l1L0[l1] || 'Multi-Sector'}</div>
+        <div class="trend-count">${count} companies · Explore →</div>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function filterByL1(l1) {
@@ -5382,19 +5557,29 @@ function buildAmazonExample() {
   const data = ITICS_RAW_DATA['2023'];
   const amazon = data.find(c => c.name === 'Amazon Com Inc');
   if (!amazon) return;
-  const colors = ['#e84141','#00c8b4','#ff6b35','#6c63ff','#f7c359','#38b2ac'];
+  const CHART_COLORS = ['#e84141','#00c8b4','#ff6b35','#6b8aff','#ffd166','#c77dff','#ff85a1','#48bfe3','#38b2ac','#f7c359'];
   const container = document.getElementById('amazon-segments');
   const segs = amazon.segments.filter(s => s.revPct > 0).sort((a,b) => b.revPct - a.revPct);
-  container.innerHTML = segs.map((s, i) => `
+
+  // Build L1→color map (same sort order as sunburst)
+  const l1Map = {};
+  segs.forEach(s => { if (!l1Map[s.l1]) l1Map[s.l1] = 0; l1Map[s.l1] += s.revPct; });
+  const l1Sorted = Object.keys(l1Map).sort((a,b) => l1Map[b] - l1Map[a]);
+  const l1Color = {};
+  l1Sorted.forEach((name, i) => { l1Color[name] = CHART_COLORS[i % CHART_COLORS.length]; });
+
+  container.innerHTML = segs.map((s, i) => {
+    const color = l1Color[s.l1] || CHART_COLORS[i % CHART_COLORS.length];
+    return `
     <div class="seg-card">
-      <div class="seg-card-fill" style="background:${colors[i%colors.length]};width:${s.revPct}%;"></div>
+      <div class="seg-card-fill" style="background:${color};width:${s.revPct}%;"></div>
       <div class="seg-l2">${s.l2}</div>
-      <div class="seg-l1">L1: ${s.l1}</div>
+      <div class="seg-l1" style="color:${color};">L1: ${s.l1}</div>
       <div class="seg-l0">L0: ${s.l0}</div>
       <div class="seg-pct">${s.revPct.toFixed(1)}%</div>
       <span class="seg-class ${s.revClass==='Pure Play'?'class-pure':s.revClass==='Quasi'?'class-quasi':'class-marginal'}">${s.revClass}</span>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   // Build company sunburst for Amazon
   const svgEl = document.getElementById('amazon-sunburst-svg');
